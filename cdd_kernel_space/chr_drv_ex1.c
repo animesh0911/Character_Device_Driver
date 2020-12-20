@@ -8,6 +8,7 @@
 #include<linux/slab.h>
 #include<linux/uaccess.h>
 #include<linux/ioctl.h>
+#include<linux/list.h>
 
 #define mem_size 1024
 
@@ -40,6 +41,46 @@ static struct file_operations fops =
 	.unlocked_ioctl	= chr_ioctl,
 	.release	= my_release,
 };
+
+struct queue_node 
+{
+	struct list_head queue_list;
+	char *data;
+};
+
+struct list_head *head;
+
+int enqueue(char* data)
+{
+	struct queue_node *node;
+	node = kmalloc(sizeof(struct queue_node*), GFP_KERNEL);
+	if(node != NULL)
+	{
+		node->data = data;
+		list_add_tail(&node->queue_list, head);
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+char* dequeue()
+{
+	char* res = NULL;
+	if(list_empty(head))
+	{
+		return res;
+	}
+	else
+	{
+		node = list_first_entry(head, struct queue_node, queue_list);
+		res = node->data;
+		list_del(&node->queue_list);
+		return res;
+	}
+}
 
 
 static int my_open(struct inode *inode, struct file *file)
@@ -142,6 +183,14 @@ static int __init chr_driver_init(void)
 	}
 	printk(KERN_INFO"device driver is inserted...\n");
 	return 0;	
+
+	head = kmalloc(sizeof(struct list_head *),GFP_KERNEL);
+	INIT_LIST_HEAD(head);
+	enqueue("One");
+	enqueue("Two");
+	printk(KERN_INFO "\n data = %s \n", dequeue());
+	printk(KERN_INFO "\n data = %s \n", dequeue());
+	printk(KERN_INFO "\n data = %s \n", dequeue());
 
 
 r_device:
