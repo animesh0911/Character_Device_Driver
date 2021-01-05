@@ -12,5 +12,5 @@ typedef struct{
 
 Queue * initQueue(void);
 QueueElement dequeue(Queue *Q);
-void enqueue(Queue *Q, QueueElement element);
+void enqueue(QueueElement element);
 

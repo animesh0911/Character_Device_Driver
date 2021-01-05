@@ -9,6 +9,8 @@
 
 static struct task_struct *thread;
 
+Queue *testQueue;
+
 Queue * initQueue(void)
 {
     Queue *Q;
@@ -48,23 +50,23 @@ int dequeue_thread(void *Q){
     return 0;
 }
 
-void enqueue(Queue *Q, QueueElement element)
+void enqueue(QueueElement element)
 {
     Queue* newQ;
-    Q->size++;
+    testQueue->size++;
     newQ = (Queue*) kmalloc(sizeof(Queue),GFP_KERNEL);
     newQ->e = element;
-    list_add_tail(&(newQ->list), &(Q->list));
+    list_add_tail(&(newQ->list), &(testQueue->list));
+    printk(KERN_INFO"\n\nFunction Called");
 }
-
 
 static int __init test(void)
 {
-    Queue *testQueue = initQueue();
-    enqueue(testQueue,1);
-    enqueue(testQueue,2);
-    enqueue(testQueue,3);
-    enqueue(testQueue,4);
+    testQueue = initQueue();
+    enqueue(1);
+    enqueue(2);
+    enqueue(3);
+    enqueue(4);
 /*    printk(KERN_INFO"\nData : %d",dequeue(testQueue));
     printk(KERN_INFO"\nData : %d",dequeue(testQueue));
     printk(KERN_INFO"\nData : %d",dequeue(testQueue));
