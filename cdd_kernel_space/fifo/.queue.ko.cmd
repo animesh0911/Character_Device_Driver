@@ -1,1 +1,0 @@
-cmd_/root/Character_Device_Driver/cdd_kernel_space/fifo/queue.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /root/Character_Device_Driver/cdd_kernel_space/fifo/queue.ko /root/Character_Device_Driver/cdd_kernel_space/fifo/queue.o /root/Character_Device_Driver/cdd_kernel_space/fifo/queue.mod.o

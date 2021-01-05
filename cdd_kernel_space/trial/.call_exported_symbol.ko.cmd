@@ -1,1 +1,0 @@
-cmd_/root/Character_Device_Driver/cdd_kernel_space/trial/call_exported_symbol.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /root/Character_Device_Driver/cdd_kernel_space/trial/call_exported_symbol.ko /root/Character_Device_Driver/cdd_kernel_space/trial/call_exported_symbol.o /root/Character_Device_Driver/cdd_kernel_space/trial/call_exported_symbol.mod.o

@@ -1,2 +1,0 @@
-/root/Character_Device_Driver/cdd_kernel_space/trial/call_exported_symbol.ko
-/root/Character_Device_Driver/cdd_kernel_space/trial/call_exported_symbol.o
