@@ -1,0 +1,2 @@
+/home/helpdeskmum/Character_Device_Driver/cdd_kernel_space/chr_drv_ex1.ko
+/home/helpdeskmum/Character_Device_Driver/cdd_kernel_space/chr_drv_ex1.o

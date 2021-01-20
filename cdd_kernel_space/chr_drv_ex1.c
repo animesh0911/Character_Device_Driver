@@ -45,17 +45,18 @@ static struct file_operations fops =
 struct queue_node 
 {
 	struct list_head queue_list;
-	char *data;
+	int data;
 };
 
 struct list_head *head;
 
-int enqueue(char* data)
+int enqueue(int data)
 {
 	struct queue_node *node;
 	node = kmalloc(sizeof(struct queue_node*), GFP_KERNEL);
 	if(node != NULL)
 	{
+		printk(KERN_INFO "Mem allocated\n");
 		node->data = data;
 		list_add_tail(&node->queue_list, head);
 		return 0;
@@ -66,22 +67,15 @@ int enqueue(char* data)
 	}
 }
 
-char* dequeue()
+int dequeue()
 {
-	char* res = NULL;
-	if(list_empty(head))
-	{
-		return res;
-	}
-	else
-	{
+	int res = -1;
+	struct queue_node *node;	
 		node = list_first_entry(head, struct queue_node, queue_list);
 		res = node->data;
 		list_del(&node->queue_list);
 		return res;
-	}
 }
-
 
 static int my_open(struct inode *inode, struct file *file)
 {
@@ -182,15 +176,13 @@ static int __init chr_driver_init(void)
 		goto r_device;
 	}
 	printk(KERN_INFO"device driver is inserted...\n");
-	return 0;	
-
-	head = kmalloc(sizeof(struct list_head *),GFP_KERNEL);
-	INIT_LIST_HEAD(head);
-	enqueue("One");
-	enqueue("Two");
-	printk(KERN_INFO "\n data = %s \n", dequeue());
-	printk(KERN_INFO "\n data = %s \n", dequeue());
-	printk(KERN_INFO "\n data = %s \n", dequeue());
+	//head = kmalloc(sizeof(struct list_head *), GFP_KERNEL);
+	//INIT_LIST_HEAD(head);
+	//enqueue(1);
+	//enqueue(2);
+	//printk(KERN_INFO "\n data = %d \n", dequeue());
+	//printk(KERN_INFO "\n data = %d \n", dequeue());
+	return 0;
 
 
 r_device:
@@ -217,4 +209,3 @@ module_exit(chr_driver_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Animesh");
 MODULE_DESCRIPTION("The character device driver");
-
