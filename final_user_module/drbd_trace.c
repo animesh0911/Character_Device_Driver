@@ -1,4 +1,4 @@
-#include <tracer.h>
+#include "tracer.h"
 int main(int argc, char *argv[]) {
 	int fd = 0, i = 0, ret = 0;
 	struct user_data *udata = NULL;
@@ -17,6 +17,13 @@ retry1:
 		printf("udata->u_data allocation failed\n");
 		goto retry1;
 	}
+	for(i=0;i<8192;i++){
+		udata->u_data[i].p_data = malloc(sizeof (struct p_data));
+		if(!udata->u_data[i].p_data){
+			printf("udata->u_data[i].p_data allocation failed\n");
+			goto retry1;
+		}
+	}
 retry2:
 	fd = open("/dev/drbd_tracer", O_RDONLY);
 	if (fd < 0) {
@@ -28,7 +35,7 @@ retry2:
 	while(1) {
 		if ((ret = ioctl(fd, TRACE_DRBD_DATA, udata) > 0)) {
 			for (i = 0; i < ret; i++) {
-				udata->u_data[i].p_data = malloc(sizeof (struct trace_data));
+				//udata->u_data[i].p_data = malloc(sizeof (struct p_data));
 				strftime(ts, 16, "%b %d %T", localtime(&(udata->u_data[i].time_insec)));
 				printf("time=%-15s jiffies=%llu msg_type=%d cmd=%d bi_size=%llu ",
 				ts,udata->u_data[i].jiffies, udata->u_data[i].msg_type, udata->u_data[i].cmd,
@@ -38,7 +45,7 @@ retry2:
 				udata->u_data[i].p_data->seq_num, udata->u_data[i].p_data->dp_flags,
 				udata->u_data[i].p_data->sector, udata->u_data[i].p_data->block_id,
 				udata->u_data[i].buf_ptr);
-				free(udata->u_data[i].p_data);
+				//free(udata->u_data[i].p_data);
 			}
 			ret = 0;
 		}

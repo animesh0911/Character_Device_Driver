@@ -7,8 +7,7 @@ struct cdev cdev;
 struct list_head queue_head;
 struct drbd_tracer_spin	tracer_drbd_spinlock;
 
-static int tracer_open(struct inode *inode, struct file *file)
-{
+static int tracer_open(struct inode *inode, struct file *file) {
 	return 0;
 }
 
@@ -16,8 +15,7 @@ static int tracer_release(struct inode *inode, struct file *file) {
 	return 0;
 }
 
-static long tracer_ioctl (struct file *file, unsigned int cmd, unsigned long arg)
-{
+static long tracer_ioctl (struct file *file, unsigned int cmd, unsigned long arg) {
 	unsigned long size = 0, i = 0, ret = 0;
 	long bytes = 0 ;
 	struct user_data *user_data;
@@ -31,25 +29,33 @@ static long tracer_ioctl (struct file *file, unsigned int cmd, unsigned long arg
 				node = NULL;
 				node = trace_dequeue_data();
 				if (node) {
-				//	ret = copy_to_user(&(user_data->u_data[i]), &node->k_data,
-				//			sizeof (struct trace_data));
 					user_data->u_data[i].jiffies = node->k_data.jiffies;
-					user_data->u_data[i].p_data->seq_num = node->k_data.p_data->seq_num;
+					user_data->u_data[i].msg_type = node->k_data.msg_type;
+					user_data->u_data[i].cmd = node->k_data.cmd;
+					user_data->u_data[i].time_insec = node->k_data.time_insec;
+					user_data->u_data[i].bi_size = node->k_data.bi_size;
+					user_data->u_data[i].p_data->sector = node->k_data.p_data->sector;
+					user_data->u_data[i].p_data->block_id = node->k_data.p_data ->block_id;
+					user_data->u_data[i].p_data->seq_num = node->k_data.p_data->seq_num; 
+					user_data->u_data[i].p_data->dp_flags = node->k_data.p_data->dp_flags;
+					user_data->u_data[i].buf_ptr = node->k_data.buf_ptr;
 					if(node->mem_flag == 1) {
 						kfree(node);
 					} else {
 						vfree(node);
 					}
 					bytes++;
-					printk(KERN_INFO "==1 %ld\n",bytes);
+					printk(KERN_INFO"==1 %ld\n",bytes);
 				}
+				else
+					break;
 			}
 			break;
-		defualt:
+		default:
 			return -1;
 	}
-	if (bytes) {
-		printk(KERN_INFO "==2 %ld\n",bytes);
+	if(bytes) {
+		printk(KERN_INFO"==2 %ld\n",bytes);
 		return bytes;
 	} else {
 		return -1;
