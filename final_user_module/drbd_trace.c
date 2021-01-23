@@ -32,24 +32,46 @@ retry2:
 	}
 
 	udata->u_size = 8192;
+
+	pid_t process_id = 0;
+	pid_t sid = 0;
+	process_id = fork();
+	if(process_id < 0){
+		printf("fork failed");
+		exit(1);
+	}
+	if(process_id > 0){
+		printf("Daemon Process ID : %d\n",process_id);
+		exit(0);
+	}
+	sid = setsid();
+	if(sid < 0)
+		exit(1);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
+	FILE *fp = fopen("logs.txt","w+");
+
 	while(1) {
 		if ((ret = ioctl(fd, TRACE_DRBD_DATA, udata) > 0)) {
 			for (i = 0; i < ret; i++) {
-				//udata->u_data[i].p_data = malloc(sizeof (struct p_data));
 				strftime(ts, 16, "%b %d %T", localtime(&(udata->u_data[i].time_insec)));
-				printf("time=%-15s jiffies=%llu msg_type=%d cmd=%d bi_size=%llu ",
+				fprintf(fp,"time=%-15s jiffies=%llu msg_type=%d cmd=%d bi_size=%llu ",
 				ts,udata->u_data[i].jiffies, udata->u_data[i].msg_type, udata->u_data[i].cmd,
 				udata->u_data[i].bi_size);
 				
-				printf("packet_seq_no=%u packet_dp_flag=%u sector=%llu block_id=%llu buf=%llx\n",
+				fprintf(fp,"packet_seq_no=%u packet_dp_flag=%u sector=%llu block_id=%llu buf=%llx\n",
 				udata->u_data[i].p_data->seq_num, udata->u_data[i].p_data->dp_flags,
 				udata->u_data[i].p_data->sector, udata->u_data[i].p_data->block_id,
 				udata->u_data[i].buf_ptr);
-				//free(udata->u_data[i].p_data);
+				fflush(fp);
+				free(udata->u_data[i].p_data);
+				udata->u_data[i].p_data = malloc(sizeof (struct p_data));
 			}
 			ret = 0;
 		}
 	}
+	fclose(fp);
 	free(udata->u_data);
 	free(udata);
 	return 0;
